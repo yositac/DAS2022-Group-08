@@ -20,8 +20,7 @@ files needs submitting:
 
 
 Dataset information: 
-Coffee Quality: cut off values is 82.5
-
+Coffee Quality: cut off values is 82.5   
 Task Questions: do different coffee's features affect the quality in batches.
 
 
