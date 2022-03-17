@@ -30,11 +30,8 @@ Basic classification of project dataset:
 Coffee Feature      | Coffee Quality  | Label/characteristics |   
 --------------------|-----------------|------------------------   
 Aroma               | Count of detect |   Country             |   
---------------------|-----------------|-----------------------| 
 Flavor              | Quality Class   |  Harvest Year         | 
---------------------|-----------------|-----------------------| 
 Acidity             |                 |                       | 
---------------------|-----------------|-----------------------| 
 (altitude of Farm)  |                 |                       |  
 
 
