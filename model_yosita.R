@@ -1,0 +1,68 @@
+#What influence do different features of coffee have on whether the quality of a batch of coffee is classified as good or poor?
+
+#import library
+library(tidyverse)
+library(moderndive)
+library(gapminder)
+library(sjPlot)
+library(stats)
+library(jtools)
+library(janitor)
+library(GGally)
+library(dplyr)
+library(readr)
+library(purrr)
+
+#import data 
+data <- read.csv("dataset8.csv")
+glimpse(data)
+
+#remove NA
+data <- na.omit(data)
+
+
+data$Qualityclass <- ifelse(data$Qualityclass == "Good", 1, 0)
+Qualityclass <- data$Qualityclass
+country_of_origin <- data$country_of_origin
+
+
+#standardize variables to have the same scale 
+standardize_aroma <- standardize(data$aroma)
+standardize_flavor <- standardize(data$flavor)
+standardize_acidity <- standardize(data$acidity)
+#standardize_category_two_defects <- standardize(data$category_two_defects)
+standardize_altitude_mean_meters <- standardize(data$altitude_mean_meters)
+standardize_harvested <- standardize(data$harvested)
+
+
+standardize <- as.data.frame(cbind(Qualityclass,
+                                   country_of_origin,
+                                   standardize_aroma,
+                                   standardize_flavor,
+                                   standardize_acidity,
+                                   #standardize_category_two_defects,
+                                   standardize_altitude_mean_meters,
+                                   standardize_harvested))
+
+standardize$standardize_aroma <- as.numeric(standardize$standardize_aroma)
+standardize$standardize_flavor <- as.numeric(standardize$standardize_flavor)
+standardize$standardize_acidity <- as.numeric(standardize$standardize_acidity)
+standardize$standardize_altitude_mean_meters <- as.numeric(standardize$standardize_altitude_mean_meters)
+standardize$standardize_harvested <- as.numeric(standardize$standardize_harvested)
+standardize$Qualityclass <- as.numeric(Qualityclass)
+
+
+#Exploratory Analysis
+#check the relationship by pairs
+plot_corr<- ggpairs(data[,2:7]) +
+  theme(text = element_text(size=10))
+plot_corr
+
+
+#Modelling
+#using binomial because we can select Good/Poor
+model_1 <- glm(formula = Qualityclass ~ .  ,family = binomial(link = "logit"),
+               data = standardize)
+
+model_2 <- glm(formula = Qualityclass ~ standardize_aroma  ,family = binomial(link = "logit"),
+               data = standardize)
