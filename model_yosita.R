@@ -63,6 +63,41 @@ plot_corr
 #using binomial because we can select Good/Poor
 model_1 <- glm(formula = Qualityclass ~ .  ,family = binomial(link = "logit"),
                data = standardize)
+summary(model_1)
 
-model_2 <- glm(formula = Qualityclass ~ standardize_aroma  ,family = binomial(link = "logit"),
-               data = standardize)
+
+#####################################################
+model_2 <- glm(formula = Qualityclass ~ standardize_aroma  ,family = binomial(link = "logit"), data = standardize)
+summary(model_2)
+
+
+#####################################################
+model_3 <- glm(formula = Qualityclass ~ 
+                   standardize_aroma+
+                   standardize_flavor, 
+               family = binomial(link = "logit"),data = standardize)
+summary(model_3)
+
+
+#####################################################
+model_4 <- glm(formula = Qualityclass ~ 
+                   standardize_aroma+
+                   standardize_flavor+
+                   standardize_acidity, 
+               family = binomial(link = "logit"),data = standardize)
+summary(model_4)
+
+
+#####################################################
+model_5 <- glm(formula = Qualityclass ~ 
+                   standardize_aroma+
+                   standardize_flavor+
+                   standardize_acidity+
+                   standardize_category_two_defects, 
+               family = binomial(link = "logit"),data = standardize)
+summary(model_5)
+
+
+
+##right now model_4 has the best AIC
+
