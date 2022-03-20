@@ -1,0 +1,294 @@
+---
+title: "Project2"
+author: "Hiba Hajali"
+date: "20/03/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r loadpackages, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(moderndive)
+library(gapminder)
+library(sjPlot)
+library(stats)
+library(jtools)
+library(janitor)
+library(GGally)
+library(dplyr)
+library(readr)
+library(purrr)
+library(ggplot2)
+library(gridExtra)
+library(rcompanion)
+
+```
+
+# Introduction 
+
+```{r}
+##import data 
+data <- read.csv("dataset8.csv")
+```
+
+The numbers of the missing values in each column:
+
+
+```{r}
+
+##check for missing values using sapply
+sapply(data, function(x) sum(is.na(x)))
+
+```
+
+The data after we remove the missing values:
+
+```{r}
+##removing missing values
+data <- na.omit(data)
+glimpse(data)
+
+##replace good/poor with the value 1 and 0
+#data$Qualityclass <- ifelse(data$Qualityclass == "Good", 1, 0)
+
+##assign the value to keep in variable
+#Qualityclass <- data$Qualityclass
+#country_of_origin <- data$country_of_origin
+```
+
+
+The number of unique values in country of origin: 
+
+```{r}
+##check for number of unique values in country of origin and harvest year using sapply
+length(unique(data$country_of_origin))
+
+```
+
+The number of unique values in harvest year:
+```{r}
+length(unique(data$harvested))
+```
+
+# Explantory Analysis 
+
+The correlation between the quantitative variables:
+
+```{r plots, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE}
+##correlation between variables. 
+pair_cor <- data %>% 
+    select(Qualityclass,
+           harvested,
+           altitude_mean_meters,
+           aroma,
+           flavor,
+           acidity,
+           category_two_defects) 
+pair_cor$Qualityclass <- as.factor(pair_cor$Qualityclass)
+
+
+#Quality class vs aroma.
+plot_1  <-  ggplot(data = pair_cor, 
+                   aes(x = Qualityclass, 
+                       y = aroma, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality class vs aroma.", y = "Aroma") +
+            theme(legend.position = "none")
+
+ggpairs(pair_cor) +
+    theme(text = element_text(size=10))
+
+```
+
+Box plots showing the distribution of the quantitative variables  
+
+```{r boxplots, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE}
+plot__1  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = aroma, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Aroma") +
+            theme(legend.position = "none")
+
+plot_2  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = flavor, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Flavor") +
+            theme(legend.position = "none")
+
+plot_3  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = acidity, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Acidity") +
+            theme(legend.position = "none")
+
+plot_4  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = category_two_defects, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Category Two Defects") +
+            theme(legend.position = "none")
+
+plot_5  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = altitude_mean_meters, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Altitude mean (meters)") +
+            theme(legend.position = "none")
+
+plot__1 
+plot_2
+plot_3 
+plot_4
+plot_5
+
+```
+
+
+bar charts:
+
+```{r}
+#bar chart showing the quality class in each country 
+plot_6  <-  ggplot(data = data, 
+                   aes(x = country_of_origin, 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = ..prop..,fill=  Qualityclass),
+                     stat = "count", position = "dodge")
+plot_6
+
+#bar chart showing the quality class in each harvest year 
+plot_7  <-  ggplot(data = data, 
+                   aes(x = harvested, 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = ..prop..,fill=  Qualityclass),
+                     stat = "count", position = "dodge")
+plot_7
+
+```
+
+The percentages:
+
+Table showing the percentage of the quality classes for each country
+
+```{r}
+#table showing the percentage of the quality classes for each country  
+data %>%
+    tabyl(country_of_origin, Qualityclass) %>%
+    adorn_percentages() %>%
+    adorn_pct_formatting() %>%
+    adorn_ns() 
+
+```
+
+Table showing the percentage of the quality classes for each harvest year:
+
+```{r}
+#table showing the percentage of the quality classes for each harvest year   
+data %>%
+    tabyl(harvested, Qualityclass) %>%
+    adorn_percentages() %>%
+    adorn_pct_formatting() %>%
+    adorn_ns()
+```
+
+
+## Formal Analsis 
+
+Model 1:
+
+$$Qualityclass \sim country\_of\_origin + aroma + flavor + acidity + category\_two\_defects + altitude\_mean\_meters$$
+
+```{r ,warning=FALSE, message=FALSE}
+#setting the quality class as factor 
+data$Qualityclass <- as.factor(data$Qualityclass)
+
+model_1 <- glm(formula = Qualityclass ~ .,family = binomial(link = "logit"),
+               data = data)
+summ(model_1)    
+
+```
+
+Model 2:
+
+$$Qualityclass \sim country\_of\_origin + aroma + flavor + acidity + category\_two\_defects + harvested$$
+
+```{r, warning=FALSE, message=FALSE}
+model_2 <- glm(formula = Qualityclass ~ country_of_origin +aroma+flavor+acidity+category_two_defects+harvested,family = binomial(link = "logit"),
+               data = data)
+summ(model_2)
+
+```
+
+
+Model 3:
+
+$$Qualityclass \sim country\_of\_origin + aroma + flavor + acidity + category\_two\_defects$$
+
+```{r, warning=FALSE, message=FALSE}
+model_3 <- glm(formula = Qualityclass ~ country_of_origin +aroma+flavor+acidity+category_two_defects,family = binomial(link = "logit"),
+               data = data)
+summ(model_3)
+```
+
+Model 4:
+
+ $$Qualityclass \sim aroma + flavor + acidity + category\_two\_defects$$
+ 
+```{r, warning=FALSE, message=FALSE}
+model_4 <- glm(formula = Qualityclass ~ aroma+flavor+acidity+category_two_defects,family = binomial(link = "logit"),
+               data = data)
+summ(model_4)
+```
+
+
+Model 5:
+
+ $$Qualityclass  \sim  aroma + flavor + acidity$$
+
+```{r, warning=FALSE, message=FALSE}
+#best model
+model_5 <- glm(formula = Qualityclass ~ aroma+flavor+acidity ,family = binomial(link = "logit"),
+               data = data)
+summ(model_5)
+
+```
+
+
+Models comparison:
+
+```{r, warning=FALSE, message=FALSE}
+#compare 5 models
+compareGLM(model_1, model_2, model_3, model_4,model_5)
+```
+
+
+
+Odds Plot:
+
+```{r odds plot, warning=FALSE, message=FALSE}
+#Odds Plot
+plot_model(model_5, show.values = TRUE, transform = NULL,
+           title = "Log-Odds (features)", show.p = FALSE)
+
+```
+
+
+Confidence intervals:
+
+```{r, warning=FALSE, message=FALSE}
+#Confidence intervals
+confint(model_5)
+```
+
+## Conclusion 
