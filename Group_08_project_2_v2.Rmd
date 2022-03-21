@@ -1,0 +1,378 @@
+---
+title: "Project2"
+author: "Hiba Hajali"
+date: "20/03/2022"
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    number_sections: yes
+    keep_tex: true
+  html_document:
+    df_print: paged
+fig_caption: yes
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r loadpackages, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(moderndive)
+library(gapminder)
+library(sjPlot)
+library(stats)
+library(jtools)
+library(janitor)
+library(GGally)
+library(dplyr)
+library(readr)
+library(purrr)
+library(ggplot2)
+library(gridExtra)
+library(rcompanion)
+library(knitr)
+library(kableExtra)
+library(pROC)
+library(caret)
+```
+
+# Introduction 
+
+```{r}
+##import data 
+data <- read.csv("dataset8.csv")
+```
+
+The numbers of the missing values in each column:
+
+
+```{r}
+
+##check for missing values using sapply
+sapply(data, function(x) sum(is.na(x)))
+
+```
+
+The data after we remove the missing values:
+
+```{r}
+##removing missing values
+data <- na.omit(data)
+glimpse(data)
+
+##replace good/poor with the value 1 and 0
+#data$Qualityclass <- ifelse(data$Qualityclass == "Good", 1, 0)
+
+##assign the value to keep in variable
+#Qualityclass <- data$Qualityclass
+#country_of_origin <- data$country_of_origin
+```
+
+
+The number of unique values in country of origin: 
+
+```{r}
+##check for number of unique values in country of origin and harvest year using sapply
+length(unique(data$country_of_origin))
+
+```
+
+The number of unique values in harvest year:
+```{r}
+length(unique(data$harvested))
+```
+
+# Explantory Analysis 
+
+The correlation between the quantitative variables:
+
+```{r plots, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE}
+##correlation between variables. 
+pair_cor <- data %>% 
+    select(Qualityclass,
+           harvested,
+           altitude_mean_meters,
+           aroma,
+           flavor,
+           acidity,
+           category_two_defects) 
+pair_cor$Qualityclass <- as.factor(pair_cor$Qualityclass)
+
+
+#Quality class vs aroma.
+plot_1  <-  ggplot(data = pair_cor, 
+                   aes(x = Qualityclass, 
+                       y = aroma, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality class vs aroma.", y = "Aroma") +
+            theme(legend.position = "none")
+
+ggpairs(pair_cor) +
+    theme(text = element_text(size=5))
+
+```
+
+Box plots showing the distribution of the quantitative variables  
+
+```{r boxplots, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+plot__1  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = aroma, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Aroma") +
+            theme(legend.position = "none")
+
+plot_2  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = flavor, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Flavor") +
+            theme(legend.position = "none")
+
+plot_3  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = acidity, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Acidity") +
+            theme(legend.position = "none")
+
+plot_4  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = category_two_defects, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Category Two Defects") +
+            theme(legend.position = "none")
+
+plot_5  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = altitude_mean_meters, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Altitude mean (meters)") +
+            theme(legend.position = "none")
+
+
+
+grid.arrange(plot__1,plot_2,plot_3,nrow=1)
+grid.arrange(plot_4, plot_5, nrow=1)
+```
+
+
+## bar charts:
+
+```{r barp, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+#bar chart showing the quality class in each country 
+plot_6  <-  ggplot(data = data, 
+                   aes(x = country_of_origin, 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = ..prop..,fill=  Qualityclass),
+                     stat = "count", position = "dodge") + 
+  theme(axis.text.x=element_text(angle=45, hjust=1), text=element_text(size=6))
+
+#bar chart showing the quality class in each harvest year 
+plot_7  <-  ggplot(data = data, 
+                   aes(x = harvested, 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = ..prop..,fill=  Qualityclass),
+                     stat = "count", position = "dodge")
+grid.arrange(plot_6, plot_7, ncol=1)
+
+
+plot_8  <-  ggplot(data = data, 
+                   aes(x = ..prop.., 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = country_of_origin,fill=  Qualityclass),
+                     stat = "count", position = "dodge") + 
+  theme(axis.text.y =element_text(angle=0, hjust=1), text=element_text(size=10))
+plot_8
+
+plot_9  <-  ggplot(data = data, 
+                   aes(x = country_of_origin, 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = ..prop..,fill=  Qualityclass),
+                     stat = "count", position = "dodge") + 
+  theme(axis.text.x=element_text(angle=90, hjust=1))
+plot_9
+```
+
+The percentages:
+
+Table showing the percentage of the quality classes for each country
+
+```{r,echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+#table showing the percentage of the quality classes for each country  
+data %>%
+    tabyl(country_of_origin, Qualityclass) %>%
+    adorn_percentages() %>%
+    adorn_pct_formatting() %>%
+    adorn_ns() 
+
+```
+
+Table showing the percentage of the quality classes for each harvest year:
+
+```{r, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+#table showing the percentage of the quality classes for each harvest year   
+data %>%
+    tabyl(harvested, Qualityclass) %>%
+    adorn_percentages() %>%
+    adorn_pct_formatting() %>%
+    adorn_ns()
+```
+
+
+# Formal Analsis 
+
+Model 1:
+
+$$ln\left(\frac{p_{Poor}}{1-p_{Poor}}\right) = \alpha + \beta_1 \cdot \textrm{Country} + \beta_2 \cdot \textrm{Aroma}+ \beta_3 \cdot \textrm{Flavor} + \beta_4 \cdot \textrm{Acidity} + \beta_5 \cdot \textrm{Category Two Defects}+\beta_6 \cdot \textrm{Harvested}+\beta_7 \cdot \textrm{Altitude}$$
+
+
+```{r eval=TRUE, echo=FALSE, fig.align="center", fig.pos='H', message=FALSE, ,warning=FALSE, out.width='68%'}
+#setting the quality class as factor 
+data$Qualityclass <- as.factor(data$Qualityclass)
+
+model_1 <- glm(formula = Qualityclass ~ .,family = binomial(link = "logit"),
+               data = data)
+summ(model_1) 
+
+```
+
+Model 2:
+$$ln\left(\frac{p_{Poor}}{1-p_{Poor}}\right) = \alpha + \beta_1 \cdot \textrm{Country} + \beta_2 \cdot \textrm{Aroma}+ \beta_3 \cdot \textrm{Flavor} + \beta_4 \cdot \textrm{Acidity} + \beta_5 \cdot \textrm{Category Two Defects}+\beta_6 \cdot \textrm{Harvested}$$
+
+
+```{r, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+model_2 <- glm(formula = Qualityclass ~ country_of_origin +aroma+flavor+acidity+category_two_defects+harvested,family = binomial(link = "logit"),
+               data = data)
+```
+
+
+Model 3:
+$$ln\left(\frac{p_{poor}}{1-p_{poor}}\right) = \alpha + \beta_1 \cdot \textrm{Country of origin} + \beta_2 \cdot \textrm{aroma}+ \beta_3 \cdot \textrm{flavor} + \beta_4 \cdot \textrm{acidity} + \beta_5 \cdot \textrm{category two defects}$$
+
+
+```{r model 3, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE,fig.align = "center",fig.pos = 'H', out.width = '68%'}
+model_3 <- glm(formula = Qualityclass ~ country_of_origin +aroma+flavor+acidity+category_two_defects,family = binomial(link = "logit"),
+               data = data)
+```
+
+Model 4:
+$$ln\left(\frac{p_{Poor}}{1-p_{Poor}}\right) = \alpha + \beta_1 \cdot \textrm{Aroma}+ \beta_2 \cdot \textrm{Flavor} + \beta_3 \cdot \textrm{Acidity} + \beta_4 \cdot \textrm{Category Two Defects}$$
+
+ 
+```{r model 4, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+model_4 <- glm(formula = Qualityclass ~ aroma+flavor+acidity+category_two_defects,family = binomial(link = "logit"),
+               data = data)
+```
+
+
+Model 5:
+$$ln\left(\frac{p_{Poor}}{1-p_{Poor}}\right) = \alpha  + \beta_1 \cdot \textrm{Aroma}+ \beta_2 \cdot \textrm{Flavor} + \beta_3 \cdot \textrm{Acidity}$$
+
+
+```{r model 5, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+#best model
+model_5 <- glm(formula = Qualityclass ~ aroma+flavor+acidity ,family = binomial(link = "logit"),
+               data = data)
+
+```
+
+
+## Models comparison:
+
+```{r model comparison, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H', out.width='40%'}
+#compare 5 models
+compareGLM(model_1, model_2, model_3, model_4,model_5) %>% 
+  kable(digits=3,align='c',
+   caption = "The Result of Model comparison") %>%
+  kable_styling(font_size=8, latex_options="HOLD_position")
+
+```
+
+
+
+
+\newpage 
+## log Odds: 
+```{r odds plot, warning=FALSE, message=FALSE, fig.cap = "\\label{fig:logodds} Log Odds r each quality class in every continents.",out.width = '68%', fig.align = "center",  fig.pos = 'H'}
+#Odds Plot
+plot_model(model_5, show.values = TRUE, transform = NULL,
+           title = "Log-Odds (Poor instructor)", show.p = FALSE)
+
+```
+
+
+
+
+
+## Confidence Intervals:
+```{r , warning=FALSE, message=FALSE, fig.align = "center",  fig.pos = 'H'}
+#Confidence intervals
+confint(model_5) %>% 
+  kable(caption = '\\label{tab:CI5} Confidence Intervals for log odds in Model 5',
+booktabs = TRUE, linesep = "") %>% 
+  kable_styling(font_size = 10)
+```
+
+
+## Extend Analysis-Prediction Assesment. 
+
+**Confusion Matrix**
+```{r ,echo=FALSE,warning=FALSE, message=FALSE, fig.align = "center",out.width = '68%',  fig.pos = 'H'}
+data$Qualityclass <- ifelse(data$Qualityclass == "Good", 0, 1)
+data$Qualityclass <- as.factor(data$Qualityclass)
+##set up train data and test data. 
+train_sub=sample(nrow(data), 8/10*nrow(data))
+train_data <- data[train_sub, ]
+test_data <- data[-train_sub, ]
+
+##check the fitting information at train_data_set. 
+model_for_train_data <- glm(Qualityclass~aroma+flavor+acidity,family = binomial(link="logit"), data=train_data)
+summary(model_for_train_data)
+
+##add predicted data to the test_data_set. In which, the probability greater than 0.65 will be served as poor quality of coffee.
+predict_logistic <- as.numeric(predict(model_for_train_data, 
+                                       newdata=test_data,
+                                       type="response")>0.65)
+
+conMat <- confusionMatrix(factor(predict_logistic), 
+                          factor(test_data$Qualityclass), positive="1")
+## Accuracy
+conMat[["overall"]] %>% 
+  kable(col.names = "Value",
+        caption = '\\label{tab:acc} Accuracy of Prediction.')
+##sensitivity and specificity
+conMat[["byClass"]] %>% 
+  kable(col.names = "Value",
+        caption = '\\label{tab:sens} The Resule of Sensitivity and Specificity of Prediction.')
+
+## Reference and prediction information
+conMat[["table"]] %>% 
+  kable(col.names = c("Actual Good","Actual Bad"),
+        row.names = TRUE,
+        caption = '\\label{tab:predic} Confuse table.',
+        booktabs = TRUE, linesep = "") %>% 
+  kable_styling(font_size = 10)
+```
+
+
+
+
+
+**ROC Curve**
+
+```{r ROC curve, warning=FALSE, message=FALSE, fig.align = "center",out.width = '68%',  fig.pos = 'H',fig.cap = "\\label{fig:ROC} ROC cureve for model predicton", fig.pos = 'H'}
+roc.cruve <- roc(test_data$Qualityclass,
+                 predict_logistic,
+                 plot=TRUE, print.thres=TRUE, print.auc=TRUE,
+                 levels=c(0,1), direction="<")
+```
+
+# Conclusion 
