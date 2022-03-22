@@ -40,10 +40,11 @@ Count of detect     |                 |                            |
 
 ## Methdology- A brief introduction. 
 1. Check the data set, such as variables, missing values, data distribution and pairs correlations etc. (Explorancy analysis)
-2. Checking **multicollinearity** by kappa function. both of VIF and kappa function could determinate the multicollinearity, the reasone that choose kappa function please check on there: https://stats.stackexchange.com/questions/62853/difference-between-variance-inflation-factor-vif-and-kappa-in-r
-3. Then, we start to build  comparise model. the strategy to estabalish model is top-down approach. start time a model contians all variables. and remove the variables one by one. Evaluate it by AIC BIC and p vlues. 
-4. After the final model has been choosen, we calculate the log odd ratio. check this wheather this value fall within confidence inverval.
-5. the porbability plot indicates how the 
+2. Checking **multicollinearity** by kappa function. both of VIF and kappa function could determinate the multicollinearity, the reasone that choose kappa function please check on there: https://stats.stackexchange.com/questions/62853/difference-between-variance-inflation-factor-vif-and-kappa-in-r (formal analysis)
+3. Then, we start to build  comparise model. the strategy to estabalish model is top-down approach. start time a model contians all variables. and remove the variables one by one. Evaluate it by AIC BIC and p vlues. (formal analysis)
+4. After the final model has been choosen, we calculate the log odd ratio. check this wheather this value fall within confidence inverval. (formal analysis)
+5. the probability plot indicates how the probability changed. this could explain how the variables effect the response outcome.(formal analysis) 
+7. we also produce an prediction evaluation. if we use our final model to predict the quality class of coffee bean, what the accrancy, sensitivity and specifity of our final model. For this, the ROC and Confusion maxtrix has been used. 
 
 
 
