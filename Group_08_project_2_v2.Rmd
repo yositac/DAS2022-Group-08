@@ -39,10 +39,12 @@ library(caret)
 
 # Introduction 
 
+Coffee is one of the most popular beverages worldwide and has a vast market. Research on coffee quality can help coffee farmers understand the quality of the coffee they grow to make more accurate market planning. The researchers obtained data containing features of coffee and its production from the Coffee Quality Institute, a coffee research institute. They used this data to analyze the impact of these coffee features (such as acidity) on coffee quality scores. In the following sections, the researchers will use the Generalized Linear Model to model the Qualityclass variables, obtain the optimal model by comparison, and analyze each variable to determine its impact on coffee quality.
 ```{r}
 ##import data 
 data <- read.csv("dataset8.csv")
 ```
+# Explanatory Analysis 
 
 The numbers of the missing values in each column:
 
@@ -82,8 +84,6 @@ The number of unique values in harvest year:
 ```{r}
 length(unique(data$harvested))
 ```
-
-# Explantory Analysis 
 
 The correlation between the quantitative variables:
 
