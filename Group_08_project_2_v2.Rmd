@@ -236,7 +236,23 @@ data %>%
 ```
 
 
-# Formal Analsis 
+# Formal Anaylsis 
+## Multilinearility Checking
+```{r multilinearility???, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+multico.variables <- data %>% 
+  select(aroma,
+         flavor,
+         acidity,
+         category_two_defects,
+         altitude_mean_meters,
+         harvested) %>% 
+  cor()
+
+kappa(multico.variables, exact=TRUE)
+##kappa value is 21.31, that is lower than 100. in general, it is suggest that the multilinearlity in our variables is quite small. 
+
+```
+
 
 Model 1:
 
@@ -300,6 +316,9 @@ levels(data$Qualityclass)##check the baseline and contributor for our response v
 
 
 ## Models comparison and Selection:
+
+
+
 
 ```{r model comparison, warning=FALSE, message=FALSE, fig.align = "center", fig.pos = 'H', out.height=12, out.width=6}
 #compare 5 models
