@@ -35,6 +35,8 @@ library(knitr)
 library(kableExtra)
 library(pROC)
 library(caret)
+library(huxtable)
+library(grid)
 ```
 
 # Introduction 
@@ -70,6 +72,7 @@ glimpse(data)
 #Qualityclass <- data$Qualityclass
 #country_of_origin <- data$country_of_origin
 ```
+
 
 
 The number of unique values in country of origin: 
@@ -205,25 +208,31 @@ The percentages:
 
 Table showing the percentage of the quality classes for each country
 
-```{r,echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+```{r,echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE, fig.align = "center",fig.pos = 'H',out.width = '68%'}
 #table showing the percentage of the quality classes for each country  
 data %>%
     tabyl(country_of_origin, Qualityclass) %>%
     adorn_percentages() %>%
     adorn_pct_formatting() %>%
-    adorn_ns() 
+    adorn_ns() %>% 
+  kable(align='c',
+   caption = "The Proportion of Quality Classs in Different Country") %>%
+  kable_styling( latex_options="HOLD_position")
 
 ```
 
 Table showing the percentage of the quality classes for each harvest year:
 
-```{r, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+```{r, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE, fig.align = "center",  fig.pos = 'H', out.width = '68%'}
 #table showing the percentage of the quality classes for each harvest year   
 data %>%
     tabyl(harvested, Qualityclass) %>%
     adorn_percentages() %>%
     adorn_pct_formatting() %>%
-    adorn_ns()
+    adorn_ns() %>% 
+  kable(align='c',
+   caption = "The Proportion of Quality Classs in Different Harvested Year") %>%
+  kable_styling( latex_options="HOLD_position")
 ```
 
 
@@ -240,7 +249,6 @@ data$Qualityclass <- as.factor(data$Qualityclass)
 
 model_1 <- glm(formula = Qualityclass ~ .,family = binomial(link = "logit"),
                data = data)
-summ(model_1) 
 
 ```
 
@@ -281,13 +289,19 @@ $$ln\left(\frac{p_{Poor}}{1-p_{Poor}}\right) = \alpha  + \beta_1 \cdot \textrm{A
 #best model
 model_5 <- glm(formula = Qualityclass ~ aroma+flavor+acidity ,family = binomial(link = "logit"),
                data = data)
-
 ```
 
 
-## Models comparison:
+```{r baseline checking}
+levels(data$Qualityclass)##check the baseline and contributor for our response variables. 
+# the first returned result is our baseline and the second returned is the contributor. 
+# it is means our model will estimates the change of the coffee bean with poor quality class according to the response baseline, which is good quality. While, this change is reflect the log-odds scale.
+```
 
-```{r model comparison, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H', out.width='40%'}
+
+## Models comparison and Selection:
+
+```{r model comparison, warning=FALSE, message=FALSE, fig.align = "center", fig.pos = 'H', out.height=12, out.width=6}
 #compare 5 models
 compareGLM(model_1, model_2, model_3, model_4,model_5) %>% 
   kable(digits=3,align='c',
@@ -300,8 +314,9 @@ compareGLM(model_1, model_2, model_3, model_4,model_5) %>%
 
 
 \newpage 
+
 ## log Odds: 
-```{r odds plot, warning=FALSE, message=FALSE, fig.cap = "\\label{fig:logodds} Log Odds r each quality class in every continents.",out.width = '68%', fig.align = "center",  fig.pos = 'H'}
+```{r odds plot, warning=FALSE, message=FALSE,out.width = '68%', fig.align = "center",  fig.pos = 'H'}
 #Odds Plot
 plot_model(model_5, show.values = TRUE, transform = NULL,
            title = "Log-Odds (Poor instructor)", show.p = FALSE)
@@ -310,21 +325,38 @@ plot_model(model_5, show.values = TRUE, transform = NULL,
 
 
 
-
-
 ## Confidence Intervals:
 ```{r , warning=FALSE, message=FALSE, fig.align = "center",  fig.pos = 'H'}
 #Confidence intervals
 confint(model_5) %>% 
-  kable(caption = '\\label{tab:CI5} Confidence Intervals for log odds in Model 5',
-booktabs = TRUE, linesep = "") %>% 
-  kable_styling(font_size = 10)
+  kable(caption = '\\label{tab:CI5} Confidence Intervals for log odds in Model 5') %>% 
+  kable_styling(font_size = 10,latex_options="HOLD_position")
 ```
 
 
-## Extend Analysis-Prediction Assesment. 
+## The Probability Plot: 
+```{r probability plot,warning=FALSE, message=FALSE, fig.align = "center",  fig.pos = 'H' }
+log.odds.est <- data %>%
+  mutate(logodds.poor = predict(model_5))
 
-**Confusion Matrix**
+plot_10 <- plot_model(model_5, type = "pred", title = "Probability of Poor Quality Class",
+           axis.title = c("Aroma Score",""))$aroma
+
+plot_11 <- plot_model(model_5, type = "pred", title = "Probability of Poor Quality Class",
+           axis.title = c("Flavor Score", ""))$flavor
+
+plot_12 <- plot_model(model_5, type = "pred", title = "Probability of Poor Quality Class",
+           axis.title = c("Acidiry Score", ""), element_text(size=1))$acidity
+
+grid.arrange(plot_10, plot_11, plot_12, nrow=2)
+```
+
+
+
+
+# Extend Analysis -- Prediction Assesment. 
+
+## Confusion Matrix
 ```{r ,echo=FALSE,warning=FALSE, message=FALSE, fig.align = "center",out.width = '68%',  fig.pos = 'H'}
 data$Qualityclass <- ifelse(data$Qualityclass == "Good", 0, 1)
 data$Qualityclass <- as.factor(data$Qualityclass)
@@ -341,17 +373,19 @@ summary(model_for_train_data)
 predict_logistic <- as.numeric(predict(model_for_train_data, 
                                        newdata=test_data,
                                        type="response")>0.65)
-
+levels(data$Qualityclass)
 conMat <- confusionMatrix(factor(predict_logistic), 
                           factor(test_data$Qualityclass), positive="1")
 ## Accuracy
 conMat[["overall"]] %>% 
   kable(col.names = "Value",
-        caption = '\\label{tab:acc} Accuracy of Prediction.')
+        caption = '\\label{tab:acc} Accuracy of Prediction.') %>% 
+  kable_styling(font_size = 10, latex_options="HOLD_position")
 ##sensitivity and specificity
 conMat[["byClass"]] %>% 
   kable(col.names = "Value",
-        caption = '\\label{tab:sens} The Resule of Sensitivity and Specificity of Prediction.')
+        caption = '\\label{tab:sens} The Resule of Sensitivity and Specificity of Prediction.') %>% 
+  kable_styling(font_size = 10, latex_options="HOLD_position")
 
 ## Reference and prediction information
 conMat[["table"]] %>% 
@@ -359,14 +393,14 @@ conMat[["table"]] %>%
         row.names = TRUE,
         caption = '\\label{tab:predic} Confuse table.',
         booktabs = TRUE, linesep = "") %>% 
-  kable_styling(font_size = 10)
+  kable_styling(font_size = 10, latex_options="HOLD_position")
 ```
 
 
 
 
 
-**ROC Curve**
+## ROC Curve 
 
 ```{r ROC curve, warning=FALSE, message=FALSE, fig.align = "center",out.width = '68%',  fig.pos = 'H',fig.cap = "\\label{fig:ROC} ROC cureve for model predicton", fig.pos = 'H'}
 roc.cruve <- roc(test_data$Qualityclass,
