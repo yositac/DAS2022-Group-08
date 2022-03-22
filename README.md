@@ -44,7 +44,7 @@ Count of detect     |                 |                            |
 3. Then, we start to build  comparise model. the strategy to estabalish model is top-down approach. start time a model contians all variables. and remove the variables one by one. Evaluate it by AIC BIC and p vlues. (formal analysis)
 4. After the final model has been choosen, we calculate the log odd ratio. check this wheather this value fall within confidence inverval. (formal analysis)
 5. the probability plot indicates how the probability changed. this could explain how the variables effect the response outcome.(formal analysis) 
-7. we also produce an prediction evaluation. if we use our final model to predict the quality class of coffee bean, what the accrancy, sensitivity and specifity of our final model. For this, the ROC and Confusion maxtrix has been used. 
+7. we also produce an prediction evaluation. if we use our final model to predict the quality class of coffee bean, what the accrancy, sensitivity and specifity of our final model. For this, the ROC and Confusion maxtrix has been used. （Extend analysis）
 
 
 
