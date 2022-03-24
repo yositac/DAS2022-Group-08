@@ -1,7 +1,6 @@
 ---
 title: "Project2"
-author: "Hiba Hajali"
-date: "20/03/2022"
+author: "Group 8"
 output:
   html_document:
     latex_engine: xelatex
