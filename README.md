@@ -19,9 +19,9 @@
 
 
 ### Dataset information: 
-Coffee Quality: cut off ponits is 82.5   
-Task Questions: do different coffee's features affect the quality in batches.  
-8 variables in total. 
+Coffee Quality: cut off points is 82.5   
+Task Questions: do different coffee features affect the quality in batches.  
+Eight variables in total. 
 
 
 
@@ -38,13 +38,13 @@ Acidity             |                 |                            |
 Count of detect     |                 |                            |
 
 
-## Methdology- A brief introduction. 
+## Methodology- A brief introduction. 
 1. Check the data set, such as variables, missing values, data distribution and pairs correlations etc. (Explorancy analysis)
-2. Checking **multicollinearity** by kappa function. both of VIF and kappa function could determinate the multicollinearity, the reasone that choose kappa function please check on there: https://stats.stackexchange.com/questions/62853/difference-between-variance-inflation-factor-vif-and-kappa-in-r (formal analysis)
-3. Then, we start to build  comparise model. the strategy to estabalish model is top-down approach. start time a model contians all variables. and remove the variables one by one. Evaluate it by AIC BIC and p vlues. (formal analysis)
-4. After the final model has been choosen, we calculate the log odd ratio. check this wheather this value fall within confidence inverval. (formal analysis)
-5. the probability plot indicates how the probability changed. this could explain how the variables effect the response outcome.(formal analysis) 
-7. we also produce an prediction evaluation. if we use our final model to predict the quality class of coffee bean, what the accrancy, sensitivity and specifity of our final model. For this, the ROC and Confusion maxtrix has been used. （Extend analysis）
+2. Checking **multicollinearity** by kappa function. both of VIF and kappa functions could determine the multicollinearity, the reason that chooses kappa function please check on there: https://stats.stackexchange.com/questions/62853/difference-between-variance-inflation-factor-vif-and-kappa-in-r (formal analysis)
+3. Then, we start to build a comparison model. the strategy to establish a model is the top-down approach. Start time a model contains all variables. And remove the variables one by one. Evaluate it by AIC BIC and p-values. (formal analysis)
+4. After the final model has been chosen, we calculate the log odd ratio. check whether this value falls within confidence intervals. (formal analysis)
+5. The probability plot indicates how the probability changed. Those plots could explain how the variables affect the response outcome. (formal analysis) 
+7. we also produce a prediction evaluation. If we use our final model to predict the quality class of coffee beans, what is the accuracy, sensitivity and specificity of our final model for this, the ROC and Confusion matrix has been used（Extend analysis）
 
 
 

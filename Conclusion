@@ -1,0 +1,6 @@
+Conclusion
+1.Aroma,flavor and acidity affect the quality of coffee. With the increase of aroma, the probability of good coffee quality increases. Similarly, as flavor and acidity increase, the probability of good coffee quality increases. Comparatively speaking, the variation of flavor has the greatest impact on the quality of coffee, while the variation of acidity has the least impact on the quality of coffee.
+
+2.All but three of the variables in the final model had very little effect on the quality of the coffee.
+
+3.Futher study: we will evaluate the predictive power of the selected model by comparing the values of accuracy, sensitivity, specificity and AUC with the confusion matrix and ROC.
