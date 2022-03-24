@@ -60,10 +60,10 @@ The numbers of the missing values in each column. From the output we find that N
 ##check for missing values using sapply.
 sapply(data, function(x) sum(is.na(x)))
 ```
+The data after we remove the missing values, 858 observations were obtained. And data set includes 8 variables in total. To answer the research question, the Quality class serves as response variables, the country_of_origin, aroma, flavor, acidity, category_two_defects, altitute_mean_meters and harvested serves as explanatory variables.
 
-The data after we remove the missing values, 858 observations were obtained. And data set includes 8 variables in total. To answer the research question, the Quality class serves as response variables...
+Since there are only two kinds of results, good and bad, the response variable is dichotomous and follows binomial distribution, which is suitable for binary logistic regression in GLM, not multivariate logistic regression.
 
-(outcome is good or poor, suit for binary logistic regression in GLM, brief describe the reason we choose GLM's logistic family)
 ```{r na value removal}
 ##removing missing values
 data <- na.omit(data)
@@ -408,4 +408,9 @@ When Model_5 apply to ROC curve, its indicates similar result with confusion mat
 
 According to the prediction assessment, a possible strategy that could improve the coffee quality model is decrease FP. occurs. 
 
-# Conclusion 
+# Conclusion  
+Aroma,flavor and acidity affect the quality of coffee. With the increase of aroma, the probability of good coffee quality increases. Similarly, as flavor and acidity increase, the probability of good coffee quality increases. The variation of flavor has the greatest impact on the quality of coffee, while the variation of acidity has the least impact on the quality of coffee.
+
+All but three of the variables in the final model had very little effect on the quality of the coffee.
+
+Futher study: Evaluate the predictive power of the selected model by comparing the values of accuracy, sensitivity, specificity and AUC with the confusion matrix and ROC.
