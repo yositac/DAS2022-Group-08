@@ -1,0 +1,417 @@
+---
+title: "Project2"
+author: "Hiba Hajali"
+date: "20/03/2022"
+output:
+  html_document:
+    latex_engine: xelatex
+    number_sections: yes
+    fig_caption: yes
+    df_print: paged
+  word_document: default
+  pdf_document:
+    latex_engine: pdflatex
+    number_sections: yes
+    keep_tex: yes
+fig_caption: yes
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r loadpackages, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(moderndive)
+library(gapminder)
+library(sjPlot)
+library(stats)
+library(jtools)
+library(janitor)
+library(GGally)
+library(dplyr)
+library(readr)
+library(purrr)
+library(ggplot2)
+library(gridExtra)
+library(rcompanion)
+library(knitr)
+library(kableExtra)
+library(pROC)
+library(caret)
+library(huxtable)
+library(GLMsData)
+```
+
+# Introduction 
+
+Coffee is one of the most popular beverages worldwide and has a vast market. Research on coffee quality can help coffee farmers understand the quality of the coffee they grow to make more accurate market planning. The researchers obtained data containing features of coffee and its production from the Coffee Quality Institute, a coffee research institute. They used this data to analyze the impact of these coffee features (such as acidity) on coffee quality scores. 
+
+In the following sections, the researchers will use the Generalized Linear Model to model the Qualityclass variables, obtain the optimal model by comparison, and analyze each variable to determine its impact on coffee quality.
+```{r}
+##import data 
+data <- read.csv("dataset8.csv")
+```
+# Explanatory Analysis 
+
+The numbers of the missing values in each column. From the output we find that NA values is concentrate on variable of 'harvested' and 'altitude mean meters'.
+```{r missing value checking}
+
+##check for missing values using sapply.
+sapply(data, function(x) sum(is.na(x)))
+```
+The data after we remove the missing values, 858 observations were obtained. And data set includes 8 variables in total. To answer the research question, the Quality class serves as response variables, the country_of_origin, aroma, flavor, acidity, category_two_defects, altitute_mean_meters and harvested serves as explanatory variables.
+
+Since there are only two kinds of results, good and bad, the response variable is dichotomous and follows binomial distribution, which is suitable for binary logistic regression in GLM, not multivariate logistic regression.
+
+```{r na value removal}
+##removing missing values
+data <- na.omit(data)
+glimpse(data)
+```
+
+
+
+The number of unique values in country of origin: 
+```{r Number of country}
+##check for number of unique values in country of origin and harvest year using sapply
+length(unique(data$country_of_origin))
+
+```
+
+The number of unique values in harvest year:
+```{r length of variable year}
+length(unique(data$harvested))
+```
+Correlation analysis diagram shows that there are strong positive correlations between flavor,aroma and acidity, so multicollinearity should be paid attention to in the subsequent modeling process. The correlation between other variables is weak.  
+
+
+Box plots showing the distribution of the quantitative variables.  
+```{r boxplots, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+plot__1  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = aroma, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Aroma") +
+            theme(legend.position = "none")
+
+plot_2  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = flavor, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Flavor") +
+            theme(legend.position = "none")
+
+plot_3  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = acidity, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Acidity") +
+            theme(legend.position = "none")
+
+plot_4  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = category_two_defects, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Category Two Defects") +
+            theme(legend.position = "none")
+
+plot_5  <-  ggplot(data = data, 
+                   aes(x = Qualityclass, 
+                       y = altitude_mean_meters, 
+                       fill = Qualityclass)) +
+            geom_boxplot() +
+            labs(x = "Quality Class", y = "Altitude mean (meters)") +
+            theme(legend.position = "none")
+
+
+
+grid.arrange(plot__1,plot_2,plot_3,nrow=1)
+grid.arrange(plot_4, plot_5, nrow=1)
+```
+
+The box plot shows that three variables, aroma,flavor and acidity, have more impact on good coffee quality than bad coffee quality. However, Category Tow Defects and Altitude mean (meters) have almost the same influence on coffee quality as bad, and there are some abnormal values.  
+
+
+## Bar Charts:
+```{r barp, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+#bar chart showing the quality class in each country 
+plot_6  <-  ggplot(data = data, 
+                   aes(x = ..prop.., 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = country_of_origin,fill=  Qualityclass),
+                     stat = "count", position = "dodge") + 
+  theme(axis.text.y =element_text(angle=0, hjust=1), text=element_text(size=10))
+#bar chart showing the quality class in each harvest year 
+plot_7  <-  ggplot(data = data, 
+                   aes(x = harvested, 
+                       group = Qualityclass)) +
+            geom_bar(aes(y = ..prop..,fill=  Qualityclass),
+                     stat = "count", position = "dodge")
+```
+
+The Percentages:
+
+**Table 1** showing the percentage of the quality classes for each country.
+Colombia has the most proportion of good quality coffee, while Mexico has the most bad coffee, Ethiopia only has good coffee.
+```{r,echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE, fig.align = "center",fig.pos = 'H',out.width = '68%'}
+#table showing the percentage of the quality classes for each country  
+data %>%
+    tabyl(country_of_origin, Qualityclass) %>%
+    adorn_percentages() %>%
+    adorn_pct_formatting() %>%
+    adorn_ns() %>% 
+  kable(align='c',
+   caption = "The Proportion of Quality Classs in Different Country") %>%
+  kable_styling( latex_options="HOLD_position")
+
+```
+
+
+
+
+**Table 2** indicates the percentage of the quality classes for each harvest year. In 2012, 2016 and 2017 there was a larger proportion of bad coffee, and in all other years there was a larger proportion of good coffee.
+```{r, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE, fig.align = "center",  fig.pos = 'H', out.width = '68%'}
+#table showing the percentage of the quality classes for each harvest year   
+data %>%
+    tabyl(harvested, Qualityclass) %>%
+    adorn_percentages() %>%
+    adorn_pct_formatting() %>%
+    adorn_ns() %>% 
+  kable(align='c',
+   caption = "The Proportion of Quality Classs in Different Harvested Year") %>%
+  kable_styling(latex_options="HOLD_position")
+```
+
+
+# Formal Anaylsis 
+## Multicollinearity Checking.
+
+Before start to built model, the multicollinearity examine between our potential variables. Here, kappa function helps to evaluate the multicollinearity. kappa value for the explanatory variables of this research is 21.31, that is lower than 100. In general, it considered that the multicollinearity is weak.
+```{r multiliconearility, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+multico.variables <- data %>% 
+  select(aroma,
+         flavor,
+         acidity,
+         category_two_defects,
+         altitude_mean_meters,
+         harvested) %>% 
+  cor()
+
+kappa(multico.variables, exact=TRUE)
+```
+
+
+## Models comparison and Selection:
+
+The strategy to establish model is the top-down approach. Starting with a model contains all variables, then remove the variables one by one.  
+```{r model 1,eval=TRUE, echo=FALSE, fig.align="center", fig.pos='H', message=FALSE, ,warning=FALSE, out.width='68%'}
+#setting the quality class as factor 
+data$Qualityclass <- as.factor(data$Qualityclass)
+
+model_1 <- glm(formula = Qualityclass ~ .,family = binomial(link = "logit"),
+               data = data)
+```
+
+
+
+```{r model 2, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+model_2 <- glm(formula = Qualityclass ~ country_of_origin +aroma+flavor+acidity+category_two_defects+harvested,family = binomial(link = "logit"),
+               data = data)
+```
+
+```{r model 3, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE,fig.align = "center",fig.pos = 'H', out.width = '68%'}
+model_3 <- glm(formula = Qualityclass ~ country_of_origin +aroma+flavor+acidity+category_two_defects,family = binomial(link = "logit"),
+               data = data)
+```
+
+```{r model 4, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+model_4 <- glm(formula = Qualityclass ~ aroma+flavor+acidity+category_two_defects,family = binomial(link = "logit"),
+               data = data)
+```
+
+
+```{r model 5, warning=FALSE, message=FALSE, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE,fig.align = "center",  fig.pos = 'H',out.width = '68%'}
+#best model
+model_5 <- glm(formula = Qualityclass ~ aroma+flavor+acidity ,family = binomial(link = "logit"),
+               data = data)
+```
+
+
+```{r baseline checking, echo=TRUE}
+levels(data$Qualityclass)
+#check the baseline and contributor for our response variables in models.  
+#the first returned result is our baseline and the second returned is the contributor.
+```
+For model_1 to model_5, the positive outcome is Poor quality coffee. It means that coffee with poor quality has been treated as positive outcomes in our model. 
+
+```{r model comparison, warning=FALSE, message=FALSE, fig.align = "center", fig.pos = 'H', out.height=12, out.width=6}
+#compare 5 models
+compareGLM(model_1, model_2, model_3, model_4,model_5) %>% 
+  kable(digits=3,align='c',
+   caption = "The Result of Model comparison") %>%
+  kable_styling(font_size=8, latex_options="HOLD_position")
+```
+**Table 3** summaries the results of model comparison and provides fit information. AIC, corrected AIC, BIC, p-value and pseudo R-square value are included, in which, pseudo R-square is calculate by the method of McFadden, Cox and Snell and Nagelkerke.   
+**AIC, BIC and p values** act as criteria to evaluate the  goodness-of-fit and the complexity of models. Pseudo R-square is not suit for our model comparison, because the predictor variables we apply are different. It is meaningful only compared models on the same data and same response variables.
+
+For **Table 3**, the difference between AIC and AICc is approximetly 30, that value is quite similar. While, the value of BIC indicates huge deviation. Thus, we prefer choosing model_5 as final model that show smaller BIC value. It suggests a better balance of fitting and complexity. The p value indicates the results are strongly significant. 
+
+
+
+
+The formula of final model is given by,
+$$ln\left(\frac{p_{Poor}}{1-p_{Poor}}\right) = \alpha  + \beta_1 \cdot \textrm{Aroma}+ \beta_2 \cdot \textrm{Flavor} + \beta_3 \cdot \textrm{Acidity}$$
+where $p=Prob(Poor)$ and $1-p=Prob(Good)$. 
+According to the property of our response variable (QualityClass), which also mentioned at **Exploratory Analysis**. The outcomes of QualityClass follows binomial distribution, thus, we apply logit link function, also called binary logistic regression model. This link function describe the relationship between predictor variables and response variables by log-scaled odds ratio. 
+
+
+## Information of Final Model.  
+```{r final model information}
+summary(model_5)
+```
+The summary of model_5 indicates aroma, flavor and acidity highly relevant with Quality Class. It significance code is 3 stars that means the p value close to 0.   
+
+It is notice that the of coefficients are negative for all predictors. According the relationship between the $log(\textrm{odds ratio})$ and the probability, the coefficient means the increase score of aroma, flavor and acidity will cause drops the probability of positive events, poor quality coffee, occurs. 
+
+```{r odds plot, warning=FALSE, message=FALSE,out.width = '68%', fig.align = "center",  fig.pos = 'H', fig.cap = "\\label{fig:logodds} The Estimates of Coefficients for each predictor variables"}
+#log Odds Plot
+plot_model(model_5, show.values = TRUE, transform = NULL,
+           title = "Log-Odds (Poor Quality Coffee)", show.p = FALSE)
+```
+
+**Figure 1** could well describe the influence against each predictor. The absolute value of coefficients reflect the effect level, a higher absolute value present the predictor could change the outcome more. As for Figure 1, seems Flavor score could change the log-scaled odds more significant than others.   
+
+The confidence Interval (CI) checking **(Table 4)** indicates the  estimates of parameters $\beta$ base on the final model of this research. It informs the estimates log-scaled range of coefficients for each variable.   
+However, it seems all of 95% confidence interval is wide conbinated the result of **Figure 1** , that might suggest the variance within estimates coefficients is huge, and might effect the prediction ability of model_5. Then, we will evaluate the prediction of Model_5.
+
+## Confidence Intervals of Log-Odds:
+```{r , warning=FALSE, message=FALSE, fig.align = "center",  fig.pos = 'H'}
+#Confidence intervals
+confint(model_5) %>% 
+  kable(caption = '\\label{tab:CI5} Confidence Intervals for log odds in Model 5') %>% 
+  kable_styling(font_size = 10,latex_options="HOLD_position")
+```
+
+
+## The Predictive Probability Plot with marginal effect: 
+```{r probability plot,warning=FALSE, message=FALSE, fig.align = "center",  fig.pos = 'H', fig.cap = "\\label{fig:probability plot} The Predictive Probability of Poor Quality Coffee against Score"}
+log.odds.est <- data %>%
+  mutate(logodds.poor = predict(model_5))
+
+plot_10 <- plot_model(model_5, type = "pred", title = "Probability of Poor Quality Class",
+           axis.title = c("Aroma Score",""))$aroma
+
+plot_11 <- plot_model(model_5, type = "pred", title = "Probability of Poor Quality Class",
+           axis.title = c("Flavor Score", ""))$flavor
+
+plot_12 <- plot_model(model_5, type = "pred", title = "Probability of Poor Quality Class",
+           axis.title = c("Acidiry Score", ""), element_text(size=1))$acidity
+
+grid.arrange(plot_10, plot_11, plot_12, nrow=2)
+```
+In Model_5 we use logit link function, which related with the probability. We examine the predicted probability changes with predictor by Model_5. From the predictive probability plot, the probability of poor quality rapid decrease when the score higher 6 on aroma, flavor and acidity. In which, the decrease trend of flavor most significantly, its prediction line steeper then other predictors. 
+
+
+
+
+
+
+# Extend Analysis -- Prediction Assesment.  
+
+Extend analysis will apply two machine leaning techniques and evaluate the prediction ability by accuracy, sensitivity and specificity.  
+
+
+
+The data set divided to train data and test data at ratio 8 to 2. and fit the model_5 at train data to obtain the parameters. The predictive data were generate by fitted model_5 in train_data. 
+to establish confusion matrix with predictiev data and actual data.  
+
+
+
+## Confusion Matrix. 
+```{r train data,echo=FALSE,warning=FALSE, message=FALSE, fig.align = "center",out.width = '68%',  fig.pos = 'H'}
+data$Qualityclass <- ifelse(data$Qualityclass == "Good", 0, 1)
+data$Qualityclass <- as.factor(data$Qualityclass)
+## Set up train data and test data. Set.seed function helps the result reproducible. 
+## 
+set.seed(20)
+index <- which((1:nrow(data))%%2==0)
+
+train_data <- data[-index, ]
+test_data <- data[index, ]
+```
+
+
+
+
+```{r confusion maxtrix,echo=FALSE,warning=FALSE, message=FALSE, fig.align = "center",out.width = '68%',  fig.pos = 'H'}
+##check the fitting information at train_data_set. 
+model_for_train_data <- glm(Qualityclass~aroma+flavor+acidity,family = binomial(link="logit"), data=train_data)
+model_for_test_data <- glm(Qualityclass~aroma+flavor+acidity,family = binomial(link="logit"), data=test_data)
+
+
+##add predicted data to the test_data_set. In which, the probability greater than 0.65 will be served as poor quality of coffee.
+predict_logistic <- as.numeric(predict(model_for_train_data, 
+                                       newdata=test_data,
+                                       type="response")>0.65)
+
+conMat <- confusionMatrix(factor(predict_logistic), 
+                          factor(test_data$Qualityclass), positive="1")
+## Accuracy
+conMat[["overall"]] %>% 
+  kable(col.names = "Value",
+        caption = '\\label{tab:acc} Accuracy of Prediction.') %>% 
+  kable_styling(font_size = 10, latex_options="HOLD_position")
+##sensitivity and specificity
+conMat[["byClass"]] %>% 
+  kable(col.names = "Value",
+        caption = '\\label{tab:sens} The Resule of Sensitivity and Specificity of Prediction.') %>% 
+  kable_styling(font_size = 10, latex_options="HOLD_position")
+
+## Reference and prediction information
+conMat[["table"]] %>% 
+  kable(col.names = c("Actual Good","Actual Bad"),
+        row.names = TRUE,
+        caption = '\\label{tab:predic} Confuse table.',
+        booktabs = TRUE, linesep = "") %>% 
+  kable_styling(font_size = 10, latex_options="HOLD_position")
+```
+
+Confusion matrix could summaries the prediction result and solving classified questions. The result will indicates the 2 types of errors with are false negatives (FN) and false positives (FP). Applying in this research, Confusion matrix classify the event by 4 type:  
+ 
+1.True positive (TP): the model predict coffee quality is poor, and the actual observation is poor.   
+2.False positive (FP): the model predict coffee quality is poor, and the actual observation is good.   
+3.True negative (TN):the model predict coffee quality is good, and the actual observation is good.  
+4. False negative (FN):the model predict coffee quality is good, and the actual observation is poor. 
+
+
+
+
+The result of confusion matrix indicate highest value on specificity. However, accuracy and sensitivity might relative low. The prediction summary indicates the most occurred error type is FP, which means we wrongly classify the coffee of prediction as poor quality, but the actual class is good. 
+
+The lower value of Accuracy is contribute by FP. The more of FP error occurs, suggest the count of TP will decrease. The TP is one parameters to calculate model accuracy. Thus, it can be considered that the more error event of FP occur, it will decrease the model accuracy. For the model sensitivity, TP error will present a direct influence. It is defined by the calculation formula of sensitivity. 
+
+## ROC Curve 
+```{r ROC curve, warning=FALSE, message=FALSE, fig.align = "center",out.width = '68%',  fig.pos = 'H',fig.cap = "\\label{fig:ROC} ROC cureve for model predicton", fig.pos = 'H'}
+roc.cruve <- roc(test_data$Qualityclass,
+                 predict_logistic,
+                 plot=TRUE, print.thres=TRUE, print.auc=TRUE,
+                 levels=c(0,1), direction="<")
+```
+
+Receiver Operating Characteristic curve(ROC curve) is a method used to indicates the determination ability. It is usually apply to the binary system, which suit for the final model. 
+When Model_5 apply to ROC curve, its indicates similar result with confusion matrix, that is high specificity and related lower sensitivity. But, it needs to notice that the AUC (Area Under the Curve) is over 0.8. In general, it is considers the model have predictive meaning when AUC value over 0.5.   
+
+According to the prediction assessment, a possible strategy that could improve the coffee quality model is decrease FP. occurs. 
+
+# Conclusion  
+
+Aroma,flavor and acidity affect the quality of coffee. With the increase of aroma, the probability of good coffee quality increases. Similarly, as flavor and acidity increase, the probability of good coffee quality increases. The variation of flavor has the greatest impact on the quality of coffee, while the variation of acidity has the least impact on the quality of coffee.
+
+All but three of the variables in the final model had very little effect on the quality of the coffee.
+
+Further study: Evaluate the predictive power of the selected model by comparing the values of accuracy, sensitivity, specificity and AUC with the confusion matrix and ROC.
