@@ -47,15 +47,14 @@ Count of detect     |                 |                            |
 7. we also produce a prediction evaluation. If we use our final model to predict the quality class of coffee beans, what is the accuracy, sensitivity and specificity of our final model for this, the ROC and Confusion matrix has been used（Extend analysis）
 
 ## Extend Analysis – Prediction Assesment
-Confusion Matrix
-ROC
+Confusion Matrix , ROC
 
 ## Conclusion
 1.Aroma,flavor and acidity affect the quality of coffee. 
 
 2.With the increase of aroma, the probability of good coffee quality increases. Similarly, as flavor and acidity increase, the probability of good coffee quality increases. 
 
-3. The variation of flavor has the greatest impact on the quality of coffee, while the variation of acidity has the least impact on the quality of coffee.
+3.The variation of flavor has the greatest impact on the quality of coffee, while the variation of acidity has the least impact on the quality of coffee.
 
 4.All but three of the variables in the final model had very little effect on the quality of the coffee.
 
