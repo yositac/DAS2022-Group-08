@@ -45,7 +45,7 @@ library(GLMsData)
 
 # Introduction 
 
-Coffee is one of the most popular beverages worldwide and has a vast market. Research on coffee quality can help coffee farmers understand the quality of the coffee they grow to make more accurate market planning. The researchers obtained data containing features of coffee and its production from the Coffee Quality Institute, a coffee research institute. They used this data to analyze the impact of these coffee features (such as acidity) on coffee quality scores. 
+Coffee is one of the most popular beverages worldwide and has a vast market. Research on coffee quality can help coffee farmers understand the quality of the coffee they grow to make more accurate market planning. The researchers obtained data containing features of coffee and its production from the Coffee Quality Institute, a coffee research institute, and used this data to analyze the impact of these coffee features (such as acidity) on coffee quality scores. 
 
 In the following sections, the researchers will use the Generalized Linear Model to model the Qualityclass variables, obtain the optimal model by comparison, and analyze each variable to determine its impact on coffee quality.
 ```{r}
@@ -60,9 +60,9 @@ The numbers of the missing values in each column. From the output we find that N
 ##check for missing values using sapply.
 sapply(data, function(x) sum(is.na(x)))
 ```
-The data after we remove the missing values, 858 observations were obtained. And data set includes 8 variables in total. To answer the research question, the Quality class serves as response variables, the country_of_origin, aroma, flavor, acidity, category_two_defects, altitute_mean_meters and harvested serves as explanatory variables.
+After the researchers removed the missing values, 858 observations were obtained. Moreover, the data set includes 8 variables in total. To answer the research question, the Quality class served as response variables, the country_of_origin, aroma, flavour, acidity, category_two_defects, altitute_mean_meters and harvested serves as explanatory variables.
 
-Since there are only two kinds of results, good and bad, the response variable is dichotomous and follows binomial distribution, which is suitable for binary logistic regression in GLM, not multivariate logistic regression.
+The response variable is dichotomous since there are only two kinds of results, good and bad. Moreover, it follows a binomial distribution, which is suitable for binary logistic regression in GLM, not multivariate logistic regression.
 
 ```{r na value removal}
 ##removing missing values
@@ -83,7 +83,7 @@ The number of unique values in harvest year:
 ```{r length of variable year}
 length(unique(data$harvested))
 ```
-Correlation analysis diagram shows that there are strong positive correlations between flavor,aroma and acidity, so multicollinearity should be paid attention to in the subsequent modeling process. The correlation between other variables is weak.  
+The correlation analysis diagram shows that there are strong positive correlations between flavour, aroma and acidity, so multicollinearity should be paid attention to in the subsequent modelling process. The correlation between other variables is weak.
 
 
 Box plots showing the distribution of the quantitative variables.  
@@ -134,7 +134,7 @@ grid.arrange(plot__1,plot_2,plot_3,nrow=1)
 grid.arrange(plot_4, plot_5, nrow=1)
 ```
 
-The box plot shows that three variables, aroma,flavor and acidity, have more impact on good coffee quality than bad coffee quality. However, Category Tow Defects and Altitude mean (meters) have almost the same influence on coffee quality as bad, and there are some abnormal values.  
+The box plot shows that three variables, aroma,flavor and acidity, impact good coffee quality than bad coffee quality. However, Category Tow Defects and Altitude mean (meters) have almost the same influence on coffee quality as bad, and there are some abnormal values.  
 
 
 ## Bar Charts:
