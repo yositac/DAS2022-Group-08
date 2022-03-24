@@ -1,5 +1,10 @@
 # DAS2022-Group-08
 
+## Introduction
+Coffee is one of the most popular beverages worldwide and has a vast market. Research on coffee quality can help coffee farmers understand the quality of the coffee they grow to make more accurate market planning. The researchers obtained data containing features of coffee and its production from the Coffee Quality Institute, a coffee research institute, and used this data to analyze the impact of these coffee features (such as acidity) on coffee quality scores. 
+
+In the following sections, the researchers will use the Generalized Linear Model to model the Qualityclass variables, obtain the optimal model by comparison, and analyze each variable to determine its impact on coffee quality.
+
 ## Requirement: 
 1. model: GLM 
 2. summary of findings:
@@ -17,15 +22,10 @@
 1. Group_##_Analysis.Rmd
 2. Presentation slides: Group_##_Presentation.pdf
 
-
 ### Dataset information: 
 Coffee Quality: cut off points is 82.5   
 Task Questions: do different coffee features affect the quality in batches.  
 Eight variables in total. 
-
-
-
- 
 
 ### Basic classification of variables:   
  
@@ -36,7 +36,6 @@ Flavor              |                 |  Harvest Year              |
 Acidity             |                 |                            | 
 (altitude of Farm)  |                 |                            |  
 Count of detect     |                 |                            |
-
 
 ## Methodology- A brief introduction. 
 1. Check the data set, such as variables, missing values, data distribution and pairs correlations etc. (Explorancy analysis)
