@@ -1,5 +1,5 @@
 ---
-title: "Project2"
+title: "Analysis of Relevant Features Affecting Coffee Quality"
 author: "Group 8"
 output:
   html_document:
