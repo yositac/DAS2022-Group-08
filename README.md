@@ -46,6 +46,9 @@ Count of detect     |                 |                            |
 5. The probability plot indicates how the probability changed. Those plots could explain how the variables affect the response outcome. (formal analysis) 
 7. we also produce a prediction evaluation. If we use our final model to predict the quality class of coffee beans, what is the accuracy, sensitivity and specificity of our final model for this, the ROC and Confusion matrix has been used（Extend analysis）
 
+## Results
+formula of final model , LOG-ODDS , the Predictive Probability Plot with marginal effect
+
 ## Extend Analysis – Prediction Assesment
 Confusion Matrix , ROC
 
