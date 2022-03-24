@@ -3,16 +3,12 @@ title: "Project2"
 author: "Hiba Hajali"
 date: "20/03/2022"
 output:
-  html_document:
-    latex_engine: xelatex
-    number_sections: yes
-    fig_caption: yes
-    df_print: paged
-  word_document: default
   pdf_document:
     latex_engine: pdflatex
     number_sections: yes
-    keep_tex: yes
+    keep_tex: true
+  html_document:
+    df_print: paged
 fig_caption: yes
 ---
 
