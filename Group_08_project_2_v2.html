@@ -1888,9 +1888,13 @@ find that NA values is concentrate on variable of ‘harvested’ and
 ##                   55                    0</code></pre>
 <p>The data after we remove the missing values, 858 observations were
 obtained. And data set includes 8 variables in total. To answer the
-research question, the Quality class serves as response variables…</p>
-<p>(outcome is good or poor, suit for binary logistic regression in GLM,
-brief describe the reason we choose GLM’s logistic family)</p>
+research question, the Quality class serves as response variables, the
+country_of_origin, aroma, flavor, acidity, category_two_defects,
+altitute_mean_meters and harvested serves as explanatory variables.</p>
+<p>Since there are only two kinds of results, good and bad, the response
+variable is dichotomous and follows binomial distribution, which is
+suitable for binary logistic regression in GLM, not multivariate
+logistic regression.</p>
 <pre><code>## Rows: 858
 ## Columns: 8
 ## $ country_of_origin    &lt;chr&gt; &quot;Guatemala&quot;, &quot;China&quot;, &quot;Colombia&quot;, &quot;Guatemala&quot;, &quot;C…
@@ -3141,6 +3145,17 @@ could improve the coffee quality model is decrease FP. occurs.</p>
 </div>
 <div id="conclusion" class="section level1" number="5">
 <h1><span class="header-section-number">5</span> Conclusion</h1>
+<p>Aroma,flavor and acidity affect the quality of coffee. With the
+increase of aroma, the probability of good coffee quality increases.
+Similarly, as flavor and acidity increase, the probability of good
+coffee quality increases. The variation of flavor has the greatest
+impact on the quality of coffee, while the variation of acidity has the
+least impact on the quality of coffee.</p>
+<p>All but three of the variables in the final model had very little
+effect on the quality of the coffee.</p>
+<p>Further study: Evaluate the predictive power of the selected model by
+comparing the values of accuracy, sensitivity, specificity and AUC with
+the confusion matrix and ROC.</p>
 </div>
 
 

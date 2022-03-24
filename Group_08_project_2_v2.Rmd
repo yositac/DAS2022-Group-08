@@ -3,16 +3,16 @@ title: "Project2"
 author: "Hiba Hajali"
 date: "20/03/2022"
 output:
-  pdf_document:
-    latex_engine: pdflatex
-    number_sections: yes
-    keep_tex: yes
-  word_document: default
   html_document:
     latex_engine: xelatex
     number_sections: yes
     fig_caption: yes
     df_print: paged
+  word_document: default
+  pdf_document:
+    latex_engine: pdflatex
+    number_sections: yes
+    keep_tex: yes
 fig_caption: yes
 ---
 
@@ -409,8 +409,9 @@ When Model_5 apply to ROC curve, its indicates similar result with confusion mat
 According to the prediction assessment, a possible strategy that could improve the coffee quality model is decrease FP. occurs. 
 
 # Conclusion  
+
 Aroma,flavor and acidity affect the quality of coffee. With the increase of aroma, the probability of good coffee quality increases. Similarly, as flavor and acidity increase, the probability of good coffee quality increases. The variation of flavor has the greatest impact on the quality of coffee, while the variation of acidity has the least impact on the quality of coffee.
 
 All but three of the variables in the final model had very little effect on the quality of the coffee.
 
-Futher study: Evaluate the predictive power of the selected model by comparing the values of accuracy, sensitivity, specificity and AUC with the confusion matrix and ROC.
+Further study: Evaluate the predictive power of the selected model by comparing the values of accuracy, sensitivity, specificity and AUC with the confusion matrix and ROC.
